@@ -423,6 +423,8 @@ err_exit:
 
 err_cdata:	
 	printk(KERN_INFO "%s()-, FAIL!\n", __func__);
+	private_ioext_client = NULL;
+	kfree(cdata);
 	return ret;
 
 }

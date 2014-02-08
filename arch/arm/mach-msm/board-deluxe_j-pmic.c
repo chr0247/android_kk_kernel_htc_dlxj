@@ -17,7 +17,7 @@
 #include <linux/bootmem.h>
 #include <linux/mfd/pm8xxx/pm8921.h>
 #include <linux/leds.h>
-#include <linux/leds-pm8xxx.h>
+#include <linux/leds-pm8921.h>
 #include <linux/mfd/pm8xxx/pm8xxx-adc.h>
 #include <asm/mach-types.h>
 #include <asm/mach/mmc.h>
@@ -457,22 +457,28 @@ pm8921_chg_pdata __devinitdata = {
 	.max_voltage		= MAX_VOLTAGE_MV,
 	.min_voltage		= 3200,
 	.resume_voltage_delta	= 50,
-	.term_current		= 75,
+	.term_current		= 50,
 	.cool_temp		= 0,
 	.warm_temp		= 48,
 	.temp_check_period	= 1,
-	.max_bat_chg_current	= 1025,
+	.max_bat_chg_current	= 1525,
 	.cool_bat_chg_current	= 1025,
 	.warm_bat_chg_current	= 1025,
 	.cool_bat_voltage	= 4200,
 	.warm_bat_voltage	= 4000,
 	.mbat_in_gpio		= 0, 
+	.cable_in_irq		= 0,
+	.cable_in_gpio		= 0,
 	.is_embeded_batt	= 1,
+	.eoc_ibat_thre_ma	= 50,
+	.ichg_threshold_ua = -1200000,
+	.ichg_regulation_thr_ua 	= -375000,
 	.thermal_mitigation	= deluxe_j_pm8921_therm_mitigation,
 	.thermal_levels		= ARRAY_SIZE(deluxe_j_pm8921_therm_mitigation),
 	.cold_thr = PM_SMBC_BATT_TEMP_COLD_THR__HIGH,
 	.hot_thr = PM_SMBC_BATT_TEMP_HOT_THR__LOW,
 	.ext_usb = &smb_ext_chg,
+	.rconn_mohm		= 0, 
 };
 
 static struct pm8xxx_ccadc_platform_data
@@ -488,6 +494,8 @@ pm8921_bms_pdata __devinitdata = {
 	.v_failure		= 3000,
 	.max_voltage_uv		= MAX_VOLTAGE_MV * 1000,
 	.rconn_mohm		= 0,
+	.criteria_sw_est_ocv			= 86400000, 
+	.rconn_mohm_sw_est_ocv		= 10,
 };
 
 static int __init check_dq_setup(char *str)
@@ -562,7 +570,6 @@ static struct msm_ssbi_platform_data deluxe_j_ssbi_pm8821_pdata __devinitdata = 
 void __init deluxe_j_init_pmic(void)
 {
 	pmic_reset_irq = PM8921_IRQ_BASE + PM8921_RESOUT_IRQ;
-
 	apq8064_device_ssbi_pmic1.dev.platform_data =
 						&deluxe_j_ssbi_pm8921_pdata;
 	apq8064_device_ssbi_pmic2.dev.platform_data =

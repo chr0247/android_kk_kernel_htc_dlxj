@@ -1,12 +1,12 @@
 /*
- * Copyright (C) 1991, 1992 Linus Torvalds
- * Copyright (C) 1994,      Karl Keyte: Added support for disk statistics
- * Elevator latency, (C) 2000  Andrea Arcangeli <andrea@suse.de> SuSE
- * Queue request tables / lock, selectable elevator, Jens Axboe <axboe@suse.de>
- * kernel-doc documentation started by NeilBrown <neilb@cse.unsw.edu.au>
- *	-  July2000
- * bio rewrite, highmem i/o, etc, Jens Axboe <axboe@suse.de> - may 2001
- */
+* Copyright (C) 1991, 1992 Linus Torvalds
+* Copyright (C) 1994, Karl Keyte: Added support for disk statistics
+* Elevator latency, (C) 2000 Andrea Arcangeli <andrea@suse.de> SuSE
+* Queue request tables / lock, selectable elevator, Jens Axboe <axboe@suse.de>
+* kernel-doc documentation started by NeilBrown <neilb@cse.unsw.edu.au>
+*        - July2000
+* bio rewrite, highmem i/o, etc, Jens Axboe <axboe@suse.de> - may 2001
+*/
 
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -26,6 +26,7 @@
 #include <linux/fault-inject.h>
 #include <linux/list_sort.h>
 #include <linux/delay.h>
+#include <linux/ratelimit.h>
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/block.h>
@@ -217,12 +218,33 @@ void blk_sync_queue(struct request_queue *q)
 }
 EXPORT_SYMBOL(blk_sync_queue);
 
+/**
+* __blk_run_queue - run a single device queue
+* @q:        The queue to run
+*
+* Description:
+* See @blk_run_queue. This variant must be called with the queue lock
+* held and interrupts disabled.
+* Device driver will be notified of an urgent request
+* pending under the following conditions:
+* 1. The driver and the current scheduler support urgent reques handling
+* 2. There is an urgent request pending in the scheduler
+* 3. There isn't already an urgent request in flight, meaning previously
+* notified urgent request completed (!q->notified_urgent)
+*/
 void __blk_run_queue(struct request_queue *q)
 {
 	if (unlikely(blk_queue_stopped(q)))
 		return;
 
-	q->request_fn(q);
+        if (!q->notified_urgent &&
+                q->elevator->type->ops.elevator_is_urgent_fn &&
+                q->urgent_request_fn &&
+                q->elevator->type->ops.elevator_is_urgent_fn(q)) {
+                q->notified_urgent = true;
+                q->urgent_request_fn(q);
+        } else
+                q->request_fn(q);
 }
 EXPORT_SYMBOL(__blk_run_queue);
 
@@ -742,9 +764,73 @@ void blk_requeue_request(struct request_queue *q, struct request *rq)
 
 	BUG_ON(blk_queued_rq(rq));
 
-	elv_requeue_request(q, rq);
+        if (rq->cmd_flags & REQ_URGENT) {
+                /*
+                 * It's not compliant with the design to re-insert
+                 * urgent requests. We want to be able to track this
+                 * down.
+                 */
+                pr_err("%s(): requeueing an URGENT request", __func__);
+                WARN_ON(!q->dispatched_urgent);
+                q->dispatched_urgent = false;
+        }
+        elv_requeue_request(q, rq);
 }
 EXPORT_SYMBOL(blk_requeue_request);
+
+/**
+* blk_reinsert_request() - Insert a request back to the scheduler
+* @q:                request queue
+* @rq:                request to be inserted
+*
+* This function inserts the request back to the scheduler as if
+* it was never dispatched.
+*
+* Return: 0 on success, error code on fail
+*/
+int blk_reinsert_request(struct request_queue *q, struct request *rq)
+{
+        if (unlikely(!rq) || unlikely(!q))
+                return -EIO;
+
+        blk_delete_timer(rq);
+        blk_clear_rq_complete(rq);
+        trace_block_rq_requeue(q, rq);
+
+        if (blk_rq_tagged(rq))
+                blk_queue_end_tag(q, rq);
+
+        BUG_ON(blk_queued_rq(rq));
+        if (rq->cmd_flags & REQ_URGENT) {
+                /*
+                 * It's not compliant with the design to re-insert
+                 * urgent requests. We want to be able to track this
+                 * down.
+                 */
+                pr_err("%s(): reinserting an URGENT request", __func__);
+                WARN_ON(!q->dispatched_urgent);
+                q->dispatched_urgent = false;
+        }
+
+        return elv_reinsert_request(q, rq);
+}
+EXPORT_SYMBOL(blk_reinsert_request);
+
+/**
+* blk_reinsert_req_sup() - check whether the scheduler supports
+* reinsertion of requests
+* @q:                request queue
+*
+* Returns true if the current scheduler supports reinserting
+* request. False otherwise
+*/
+bool blk_reinsert_req_sup(struct request_queue *q)
+{
+        if (unlikely(!q))
+                return false;
+        return q->elevator->type->ops.elevator_reinsert_req_fn ? true : false;
+}
+EXPORT_SYMBOL(blk_reinsert_req_sup);
 
 static void add_acct_request(struct request_queue *q, struct request *rq,
 			     int where)
@@ -1380,9 +1466,13 @@ struct request *blk_peek_request(struct request_queue *q)
 			if (rq->cmd_flags & REQ_SORTED)
 				elv_activate_rq(q, rq);
 
-			rq->cmd_flags |= REQ_STARTED;
-			trace_block_rq_issue(q, rq);
-		}
+                        rq->cmd_flags |= REQ_STARTED;
+                        if (rq->cmd_flags & REQ_URGENT) {
+                                WARN_ON(q->dispatched_urgent);
+                                q->dispatched_urgent = true;
+                        }
+                        trace_block_rq_issue(q, rq);
+                }
 
 		if (!q->boundary_rq || q->boundary_rq == rq) {
 			q->end_sector = rq_end_sector(rq);
@@ -1479,25 +1569,27 @@ bool blk_update_request(struct request *req, int error, unsigned int nr_bytes)
 	    !(req->cmd_flags & REQ_QUIET)) {
 		char *error_type;
 
-		switch (error) {
-		case -ENOLINK:
-			error_type = "recoverable transport";
-			break;
-		case -EREMOTEIO:
-			error_type = "critical target";
-			break;
-		case -EBADE:
-			error_type = "critical nexus";
-			break;
-		case -EIO:
-		default:
-			error_type = "I/O";
-			break;
-		}
-		printk(KERN_ERR "end_request: %s error, dev %s, sector %llu\n",
-		       error_type, req->rq_disk ? req->rq_disk->disk_name : "?",
-		       (unsigned long long)blk_rq_pos(req));
-	}
+                switch (error) {
+                case -ENOLINK:
+                        error_type = "recoverable transport";
+                        break;
+                case -EREMOTEIO:
+                        error_type = "critical target";
+                        break;
+                case -EBADE:
+                        error_type = "critical nexus";
+                        break;
+                case -EIO:
+                default:
+                        error_type = "I/O";
+                        break;
+                }
+                printk_ratelimited(
+                        KERN_ERR "end_request: %s error, dev %s, sector %llu\n",
+                        error_type,
+                        req->rq_disk ? req->rq_disk->disk_name : "?",
+                        (unsigned long long)blk_rq_pos(req));
+        }
 
 	blk_account_io_completion(req, nr_bytes);
 

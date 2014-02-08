@@ -1002,6 +1002,12 @@ static struct resource resources_hsic_host[] = {
 		.flags	= IORESOURCE_IO,
 	},
 	{
+		.start	= MDM2AP_ERRFATAL,
+		.end	= MDM2AP_ERRFATAL,
+		.name	= "MDM2AP_ERRFATAL",
+		.flags	= IORESOURCE_IO,
+	},
+	{
 		.start	= MDM2AP_STATUS,
 		.end	= MDM2AP_STATUS,
 		.name	= "MDM2AP_STATUS",
