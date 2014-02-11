@@ -1020,7 +1020,7 @@ static void __init deluxe_j_early_reserve(void)
 #ifdef CONFIG_HTC_PNPMGR
 extern int pnpmgr_battery_charging_enabled(int charging_enabled);
 #endif 
-static int critical_alarm_voltage_mv[] = {3000, 3200, 3400};
+static int critical_alarm_voltage_mv[] = {3000, 3100, 3200, 3400};
 
 static struct htc_battery_platform_data htc_battery_pdev_data = {
 	.guage_driver = 0,
@@ -2843,12 +2843,8 @@ static struct r3gd20_gyr_platform_data gyro_platform_data = {
 	.negate_y = 0,
 	.negate_z = 1,
 
-	.poll_interval = 50,
-	.min_interval = R3GD20_MIN_POLL_PERIOD_MS, 
-
-	
-	             
-
+       .poll_interval = 50,
+       .min_interval = R3GD20_MIN_POLL_PERIOD_MS, 
        .watermark = 0,
        .fifomode = 0,
 };
@@ -4966,11 +4962,7 @@ static void __init deluxe_j_common_init(void)
 
 	
 #ifdef CONFIG_SMB349_CHARGER
-	if(system_rev < XD)
-		smb349_data.chip_rev = SMB_349;
-	else
-		smb349_data.chip_rev = SMB_340;
-
+	smb349_data.chip_rev = SMB_349;
 	smb349_data.aicl_result_threshold = AICL_RESULT_1600MA;
 	smb349_data.dc_input_max = DC_INPUT_1700MA;
 	smb349_data.aicl_on = AICL_ENABLE;
@@ -5138,6 +5130,9 @@ static void __init deluxe_j_cdp_init(void)
 #define SIZE_ADDR3      (768 * 1024 * 1024)
 
 #define DDR_1GB_SIZE      (1024 * 1024 * 1024)
+
+int __init parse_tag_memsize(const struct tag *tags);
+static unsigned int mem_size_mb;
 
 static void __init deluxe_j_fixup(struct tag *tags, char **cmdline, struct meminfo *mi)
 {
