@@ -1801,6 +1801,12 @@ config MSM_CPUFREQ_LIMITER
 
 	  If in doubt, say N.
 
+config MSM_SLEEPER
+	bool "Limit max frequency and shut off cores while screen is off"
+	default n
+	help
+	  Limit max frequency and shut off cores while screen is off
+
 config CPU_VOLTAGE_TABLE
 	bool "Enable CPU Voltage Table via sysfs for adjustements"
 	default n
