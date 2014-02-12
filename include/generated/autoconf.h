@@ -579,7 +579,7 @@
 #define CONFIG_MFD_PM8XXX_IRQ 1
 #define CONFIG_POWER_KEY_CLR_RESET 1
 #define CONFIG_LEDS_PM8921 1
-#define CONFIG_BCMDHD_NVRAM_PATH "/system/etc/calibration.gpio4"
+#define CONFIG_BCMDHD_NVRAM_PATH "/system/etc/calibration"
 #define CONFIG_CPU_PM 1
 #define CONFIG_MSM_VIDC_VDEC 1
 #define CONFIG_GENERIC_TRACER 1
