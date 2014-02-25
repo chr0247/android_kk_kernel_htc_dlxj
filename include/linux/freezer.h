@@ -148,7 +148,7 @@ static inline int freezer_should_skip(struct task_struct *p)
 	long __retval = timeout;					\
 	freezer_do_not_count();						\
 	__retval = wait_event_interruptible_timeout(wq,	(condition),	\
-				__retval); 				\
+				__retval);				\
 	freezer_count();						\
 	__retval;							\
 })
