@@ -224,7 +224,7 @@ static struct mmc_platform_data *deluxe_j_sdc1_pdata;
 
 #ifdef CONFIG_MMC_MSM_SDC3_SUPPORT
 static unsigned int sdc3_sup_clk_rates[] = {
-	400000, 24000000, 45176400, 96000000, 192000000
+	400000, 24000000, 48000000, 96000000, 192000000
 };
 
 static unsigned int dlxj_sdc3_slot_type = MMC_TYPE_SD;

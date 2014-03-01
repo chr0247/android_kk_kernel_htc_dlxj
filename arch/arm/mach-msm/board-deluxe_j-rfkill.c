@@ -30,6 +30,8 @@
 static struct rfkill *bt_rfk;
 static const char bt_name[] = "bcm4334";
 
+extern unsigned int system_rev;
+
 struct pm8xxx_gpio_init {
 	unsigned			gpio;
 	struct pm_gpio			config;

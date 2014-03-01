@@ -6710,14 +6710,14 @@ static void __init reg_init(void)
 			writel_relaxed(0x2B, PRNG_CLK_NS_REG);
 	}
 
-#ifndef CONFIG_GPU_OVERCLOCK_450
+//#ifndef CONFIG_GPU_OVERCLOCK_450
 	if (cpu_is_apq8064()) {
 		
 		configure_sr_pll(&pll15_config, &pll15_regs, 0);
 	} else if (cpu_is_apq8064ab()) {
-#else
+/*#else
 	if (cpu_is_apq8064() || cpu_is_apq8064ab()) {
-#endif
+#endif */
 		pll15_config.l = 0x21 | BVAL(31, 7, 0x620);
 		pll15_config.m = 0x1;
 		pll15_config.n = 0x3;
