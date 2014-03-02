@@ -40,6 +40,7 @@ static void pxa3xx_smemc_resume(void)
 	__raw_writel(csadrcfg[1], CSADRCFG1);
 	__raw_writel(csadrcfg[2], CSADRCFG2);
 	__raw_writel(csadrcfg[3], CSADRCFG3);
+	__raw_writel(0x2, CSMSADRCFG);
 }
 
 static struct syscore_ops smemc_syscore_ops = {
@@ -50,6 +51,7 @@ static struct syscore_ops smemc_syscore_ops = {
 static int __init smemc_init(void)
 {
 	if (cpu_is_pxa3xx())
+		__raw_writel(0x2, CSMSADRCFG);
 		register_syscore_ops(&smemc_syscore_ops);
 
 	return 0;
