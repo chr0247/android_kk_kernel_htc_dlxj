@@ -1701,8 +1701,8 @@ int felica_uid_open(struct inode *inode, struct file *file)
 		FELICA_LOG_ERR("[FELICA_DD] %s ERROR, %s", __func__, cmdline);
 		return -EACCES;
 	}
-#endif
 	FELICA_LOG_DEBUG("[FELICA_DD] %s END", __func__);
+#endif
 	return 0;
 }
 
