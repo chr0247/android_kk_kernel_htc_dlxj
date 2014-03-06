@@ -828,7 +828,7 @@ static int __init acpuclk_8064_init(void)
 				     acpuclk_8064_probe);
 }
 device_initcall(acpuclk_8064_init);
-#ifdef CONFIG_CMDLINE_OPTIONS
+/*#ifdef CONFIG_CMDLINE_OPTIONS
 uint32_t __init acpu_check_khz_value(unsigned long khz)
 {
 	struct acpu_level *f;
@@ -868,5 +868,7 @@ uint32_t __init acpu_check_khz_value(unsigned long khz)
 	return 0;
 }
 EXPORT_SYMBOL(acpu_check_khz_value);
+*/
 /* end cmdline_khz */
-#endif
+//#endif
+

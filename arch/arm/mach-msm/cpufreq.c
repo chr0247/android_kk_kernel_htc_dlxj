@@ -72,7 +72,7 @@ static DEFINE_PER_CPU(struct cpu_freq, cpu_freq_info);
 
 static int override_cpu;
 
-#ifdef CONFIG_CMDLINE_OPTIONS
+//#ifdef CONFIG_CMDLINE_OPTIONS
 /*
  * start cmdline_khz
  */
@@ -80,7 +80,7 @@ static int override_cpu;
 /* to be safe, fill vars with defaults */
 
 
-uint32_t cmdline_maxkhz = CONFIG_MSM_CPU_FREQ_MAX, cmdline_minkhz = CONFIG_MSM_CPU_FREQ_MIN;
+/*uint32_t cmdline_maxkhz = CONFIG_MSM_CPU_FREQ_MAX, cmdline_minkhz = CONFIG_MSM_CPU_FREQ_MIN;
 
 uint32_t cmdline_maxscroff = 486000;
 bool cmdline_scroff = false;
@@ -186,8 +186,10 @@ static int __init cpufreq_read_maxscroff_cmdline(char *maxscroff)
         return 1;
 }
 __setup("maxscroff=", cpufreq_read_maxscroff_cmdline);
+*/
 /* end cmdline_khz */
-#endif
+// #endif
+
 
 /**maxscroff**/
 static int __init cpufreq_read_arg_maxscroff(char *max_so)
@@ -265,8 +267,8 @@ static void set_cpu_work(struct work_struct *work)
 	complete(&cpu_work->complete);
 }
 #endif
-#ifdef CONFIG_CMDLINE_OPTIONS
-static void msm_cpufreq_early_suspend(struct early_suspend *h)
+//#ifdef CONFIG_CMDLINE_OPTIONS
+/*static void msm_cpufreq_early_suspend(struct early_suspend *h)
 {
 	uint32_t curfreq;
 	int cpu;
@@ -314,6 +316,7 @@ static struct early_suspend msm_cpufreq_early_suspend_handler = {
 	.resume = msm_cpufreq_late_resume,
 };
 #endif
+*/
 static int msm_cpufreq_target(struct cpufreq_policy *policy,
 				unsigned int target_freq,
 				unsigned int relation)
@@ -723,9 +726,9 @@ static int __init msm_cpufreq_register(void)
 #endif
 
 	register_pm_notifier(&msm_cpufreq_pm_notifier);
-#ifdef CONFIG_CMDLINE_OPTIONS
+/*#ifdef CONFIG_CMDLINE_OPTIONS
 	register_early_suspend(&msm_cpufreq_early_suspend_handler);
-#endif
+#endif */
 	register_early_suspend(&msm_cpu_early_suspend_handler);
 	return cpufreq_register_driver(&msm_cpufreq_driver);
 }
