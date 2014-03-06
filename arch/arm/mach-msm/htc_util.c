@@ -27,7 +27,7 @@
 #include <linux/tick.h>
 #include "htc_cpu_usage_stats.h"    
 
-#include "board-monarudo.h"
+#include "board-deluxe_j.h"
 #define HTC_PM_STATSTIC_DELAY			10000
 
 #define USE_STATISTICS_STRATEGY_CONTINUOUS_3    0

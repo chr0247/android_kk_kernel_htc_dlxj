@@ -425,7 +425,7 @@ static struct attribute_group battery_attr_group = {
 };
 
 #ifdef CONFIG_HOTPLUG_CPU
-static int __cpuinit cpu_hotplug_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
+static int cpu_hotplug_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
 {
 	switch (action) {
 		
