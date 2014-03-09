@@ -54,7 +54,7 @@ static struct msm_mmc_reg_data mmc_vdd_reg_data[MAX_SDCC_CONTROLLER] = {
 		.name = "sdc_vdd",
 		.high_vol_level = 2950000,
 		.low_vol_level = 2950000,
-		.hpm_uA = 600000, 
+		.hpm_uA = 800000, 
 	}
 };
 
@@ -214,7 +214,7 @@ static struct mmc_platform_data sdc1_data = {
 	.mpm_sdiowakeup_int = MSM_MPM_PIN_SDC1_DAT1,
 	.msm_bus_voting_data = &sps_to_ddr_bus_voting_data,
 	.bkops_support = 1,
-	.prealloc_size = 6 * 1024 * 1024,
+//	.prealloc_size = 6 * 1024 * 1024,
 };
 static struct mmc_platform_data *deluxe_j_sdc1_pdata = &sdc1_data;
 #else
