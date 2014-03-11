@@ -381,10 +381,10 @@ obj-$(CONFIG_MACH_M7_DCG) += board-m7dcg-all.o board-m7china-regulator.o
 obj-$(CONFIG_MACH_M7_DUG) += board-m7dug-all.o board-m7china-regulator.o
 
 obj-$(CONFIG_MACH_MONARUDO) += htc_util.o
-obj-$(CONFIG_MACH_DELUXE_J) += htc_util.o ADP5585_ioextender.o
-obj-$(CONFIG_MACH_DELUXE_UB1) += htc_util.o ADP5585_ioextender.o
+obj-$(CONFIG_MACH_DELUXE_J) += htc_util.o
+obj-$(CONFIG_MACH_DELUXE_UB1) += htc_util.o
 obj-$(CONFIG_MACH_DELUXE_U) += htc_util.o
-obj-$(CONFIG_MACH_IMPRESSION_J) += htc_util.o ADP5585_ioextender.o
+obj-$(CONFIG_MACH_IMPRESSION_J) += htc_util.o
 obj-$(CONFIG_MACH_M7_UL) += htc_util.o
 obj-$(CONFIG_MACH_M7_WLS) += htc_util.o
 obj-$(CONFIG_MACH_M7_WLV) += htc_util.o
