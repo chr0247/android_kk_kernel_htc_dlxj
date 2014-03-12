@@ -1026,12 +1026,15 @@ config TOUCHSCREEN_HIMAX
 config TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
         tristate "Sweep2Wake for SYNAPTICS_3k based touchscreens"
         default y
-	default "MENU"
 	
 config TOUCHSCREEN_DOUBLETAP2WAKE
 	tristate "DoubleTap2Wake for touchscreens"
 	string "DoubleTap2Wake magic"
 	default n
 
+config POCKET_DETECT
+        tristate "Pocket_detect for touchscreens"
+        string "Pocket_detect protection"
+        default n
 
 endif

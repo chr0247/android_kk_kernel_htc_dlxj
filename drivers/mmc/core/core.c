@@ -340,7 +340,7 @@ void mmc_request_done(struct mmc_host *host, struct mmc_request *mrq)
 							diff);
 					host->perf.rcount++;
 					if (host->debug_mask & MMC_DEBUG_RANDOM_RW) {
-						if (mrq->data->bytes_xfered <= 64*1024) {
+						if (mrq->data->bytes_xfered <= 32*1024) {
 							host->perf.rbytes_drv_rand +=
 								mrq->data->bytes_xfered;
 							host->perf.rtime_drv_rand =
@@ -357,7 +357,7 @@ void mmc_request_done(struct mmc_host *host, struct mmc_request *mrq)
 							diff);
 					host->perf.wcount++;
 					if (host->debug_mask & MMC_DEBUG_RANDOM_RW) {
-						if (mrq->data->bytes_xfered <= 64*1024) {
+						if (mrq->data->bytes_xfered <= 32*1024) {
 							host->perf.wbytes_drv_rand +=
 								mrq->data->bytes_xfered;
 							host->perf.wtime_drv_rand =

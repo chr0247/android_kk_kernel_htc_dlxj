@@ -195,7 +195,7 @@ export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		?= $(SUBARCH)
 CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
 ARCH		:= arm
-CROSS_COMPILE	:= /home/schqiushui/gcc4.8/android-toolchain-eabi/bin/arm-eabi-
+CROSS_COMPILE	:= /home/schqiushui/gcc4.8/arm-cortex_a15-linux-gnueabi/bin/arm-cortex_a15-linux-gnueabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
