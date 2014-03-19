@@ -1329,6 +1329,7 @@
 0xf6517c0e	ip_getsockopt	vmlinux	EXPORT_SYMBOL
 0x4255fad2	qdisc_watchdog_schedule	vmlinux	EXPORT_SYMBOL
 0x4b015768	snd_iprintf	vmlinux	EXPORT_SYMBOL
+0x9a9aae9f	input_ff_create_memless	vmlinux	EXPORT_SYMBOL_GPL
 0x2d24ba4b	tty_encode_baud_rate	vmlinux	EXPORT_SYMBOL_GPL
 0x008912c6	blk_unprep_request	vmlinux	EXPORT_SYMBOL_GPL
 0x0bae62b1	ktime_get_monotonic_offset	vmlinux	EXPORT_SYMBOL_GPL

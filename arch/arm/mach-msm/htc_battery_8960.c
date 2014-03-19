@@ -41,6 +41,10 @@
 #include <mach/htc_battery_cell.h>
 #define MSPERIOD(end, start)	ktime_to_ms(ktime_sub(end, start))
 
+#ifdef CONFIG_FORCE_FAST_CHARGE
+#include <linux/fastchg.h>
+#endif
+
 #define HTC_BATT_CHG_DIS_BIT_EOC	(1)
 #define HTC_BATT_CHG_DIS_BIT_ID		(1<<1)
 #define HTC_BATT_CHG_DIS_BIT_TMP	(1<<2)
@@ -64,9 +68,6 @@ static int chg_dis_control_mask = HTC_BATT_CHG_DIS_BIT_ID
 static int chg_dis_pj_mask = HTC_BATT_CHG_DIS_BIT_ID
 								| HTC_BATT_CHG_DIS_BIT_TMR;
 
-#ifdef CONFIG_FORCE_FAST_CHARGE
-#include <linux/fastchg.h>
-#endif
 
 #define HTC_BATT_PWRSRC_DIS_BIT_MFG		(1)
 #define HTC_BATT_PWRSRC_DIS_BIT_API		(1<<1)
@@ -425,10 +426,10 @@ int htc_charger_event_notify(enum htc_charger_event event)
 								UNKNOWN_USB_DETECT_DELAY_MS)));
 		break;
 	case HTC_CHARGER_EVENT_SRC_UNKNOWN_USB: 
-		if ((get_kernel_flag() & KERNEL_FLAG_ENABLE_FAST_CHARGE) || force_fast_charge == 1)
+		if (get_kernel_flag() & KERNEL_FLAG_ENABLE_FAST_CHARGE)
 			latest_chg_src = CHARGER_AC;
 		else
-			latest_chg_src = CHARGER_UNKNOWN_USB;
+		if ((get_kernel_flag() & KERNEL_FLAG_ENABLE_FAST_CHARGE) || force_fast_charge == 1)
 		htc_batt_schedule_batt_info_update();
 		break;
 	case HTC_CHARGER_EVENT_OVP:
