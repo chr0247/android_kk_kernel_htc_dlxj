@@ -195,7 +195,7 @@ export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		?= $(SUBARCH)
 CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
 ARCH		:= arm
-CROSS_COMPILE	:= /home/schqiushui/gcc4.8/arm-cortex_a15-linux-gnueabi/bin/arm-cortex_a15-linux-gnueabi-
+CROSS_COMPILE	:= /home/schqiushui/linaro-cortex-toolchains/arm-cortex_a15-linux-gnueabihf-linaro_4.8.3-2014.02/bin/arm-cortex_a15-linux-gnueabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
