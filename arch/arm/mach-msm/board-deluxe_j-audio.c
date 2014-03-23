@@ -107,7 +107,6 @@ static int __init deluxe_j_audio_init(void)
 	htc_register_pcm_routing_ops(&rops);
 	htc_register_compr_q6_ops(&cops);
 	acoustic_register_ops(&acoustic);
-	pr_info("%s", __func__);
 	return ret;
 
 }
