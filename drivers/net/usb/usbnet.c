@@ -58,7 +58,7 @@ static u8	node_id [ETH_ALEN];
 
 static const char driver_name [] = "usbnet";
 
-static struct workqueue_struct	*usbnet_wq;
+struct workqueue_struct	*usbnet_wq;
 
 static DECLARE_WAIT_QUEUE_HEAD(unlink_wakeup);
 
@@ -297,12 +297,11 @@ void usbnet_defer_kevent (struct usbnet *dev, int work)
 EXPORT_SYMBOL_GPL(usbnet_defer_kevent);
 
 
-static void rx_complete (struct urb *urb);
-
 static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
 {
 	struct sk_buff		*skb;
 	struct skb_data		*entry;
+	usb_complete_t		complete_fn;
 	int			retval = 0;
 	unsigned long		lockflags;
 	size_t			size = dev->rx_urb_size;
@@ -323,8 +322,13 @@ static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
 	entry->dev = dev;
 	entry->length = 0;
 
+	if (dev->driver_info->rx_complete)
+		complete_fn = dev->driver_info->rx_complete;
+	else
+		complete_fn = rx_complete;
+
 	usb_fill_bulk_urb (urb, dev->udev, dev->in,
-		skb->data, size, rx_complete, skb);
+		skb->data, size, complete_fn, skb);
 
 	spin_lock_irqsave (&dev->rxq.lock, lockflags);
 
@@ -402,7 +406,7 @@ done:
 }
 
 
-static void rx_complete (struct urb *urb)
+void rx_complete (struct urb *urb)
 {
 	struct sk_buff		*skb = (struct sk_buff *) urb->context;
 	struct skb_data		*entry = (struct skb_data *) skb->cb;
@@ -492,6 +496,7 @@ block:
 	}
 	netif_dbg(dev, rx_err, dev->net, "no read resubmitted\n");
 }
+EXPORT_SYMBOL_GPL(rx_complete);
 
 static void intr_complete (struct urb *urb)
 {
@@ -610,7 +615,7 @@ void usbnet_unlink_rx_urbs(struct usbnet *dev)
 EXPORT_SYMBOL_GPL(usbnet_unlink_rx_urbs);
 
 
-static void usbnet_terminate_urbs(struct usbnet *dev)
+void usbnet_terminate_urbs(struct usbnet *dev)
 {
 	DECLARE_WAITQUEUE(wait, current);
 	int temp;
@@ -635,6 +640,7 @@ static void usbnet_terminate_urbs(struct usbnet *dev)
 	dev->wait = NULL;
 	remove_wait_queue(&unlink_wakeup, &wait);
 }
+EXPORT_SYMBOL_GPL(usbnet_terminate_urbs);
 
 int usbnet_stop (struct net_device *net)
 {
@@ -1110,8 +1116,8 @@ netdev_tx_t usbnet_start_xmit (struct sk_buff *skb,
 		usb_anchor_urb(urb, &dev->deferred);
 		
 		netif_stop_queue(net);
+		usb_put_urb(urb);
 		spin_unlock_irqrestore(&dev->txq.lock, flags);
-		usb_free_urb(urb);
 		netdev_info(dev->net, "Delaying transmission for resumption\n");
 		goto deferred;
 	}
@@ -1472,7 +1478,6 @@ int usbnet_suspend (struct usb_interface *intf, pm_message_t message)
 		if (dev->txq.qlen && PMSG_IS_AUTO(message)) {
 			dev->suspend_count--;
 			spin_unlock_irq(&dev->txq.lock);
-			--dev->suspend_count;
 			return -EBUSY;
 		} else {
 			set_bit(EVENT_DEV_ASLEEP, &dev->flags);

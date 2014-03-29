@@ -1,4 +1,4 @@
-ccflags-y := -Iinclude/drm -Idrivers/gpu/msm
+ccflags-y := -Iinclude/drm -Idrivers/gpu/msm -Wframe-larger-than=1040
 
 msm_kgsl_core-y = \
 	kgsl.o \
@@ -10,7 +10,8 @@ msm_kgsl_core-y = \
 	kgsl_gpummu.o \
 	kgsl_iommu.o \
 	kgsl_snapshot.o \
-	kgsl_events.o
+	kgsl_events.o \
+	kgsl_htc.o
 
 msm_kgsl_core-$(CONFIG_DEBUG_FS) += kgsl_debugfs.o
 msm_kgsl_core-$(CONFIG_MSM_KGSL_CFF_DUMP) += kgsl_cffdump.o

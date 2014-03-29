@@ -86,7 +86,7 @@ on init
 
 sysclktz 0
 
-loglevel 3
+loglevel 8
 
 # Backward compatibility
     symlink /system/etc /etc
@@ -127,8 +127,6 @@ loglevel 3
 
     # Directory for putting things only root should see.
     mkdir /mnt/secure 0700 root root
-    # Create private mountpoint so we can MS_MOVE from staging
-    mount tmpfs tmpfs /mnt/secure mode=0700,uid=0,gid=0
 
     # Directory for staging bindmounts
     mkdir /mnt/secure/staging 0700 root root
@@ -238,7 +236,6 @@ on post-fs
     mount rootfs rootfs / ro remount
     # mount shared so changes propagate into child namespaces
     mount rootfs rootfs / shared rec
-    mount tmpfs tmpfs /mnt/secure private rec
 
     # We chown/chmod /cache again so because mount is run as root + defaults
     chown system cache /cache
@@ -562,12 +559,6 @@ write /proc/sys/kernel/core_pattern |/system/bin/dalvik_coredump.sh\ %p\ %u\ %t\
     chown radio radio /dev/radio_feedback
     chmod 0660 /dev/radio_feedback
 
-# This will grant permission for LMI Rescue Start Server which H3G Orange TMI KDDI Verizon is exceptional
-  chmod 755 /system/bin/RescueServer
-  chmod 755 /system/bin/RescueStarter
-  chown graphics /system/bin/RescueStarter
-  chown graphics /system/bin/RescueServer
-
 # For RIL to set htc_monitor_param permission
     chown radio radio /sys/htc_monitor_status/htc_monitor_param
 
@@ -603,15 +594,11 @@ write /proc/sys/kernel/core_pattern |/system/bin/dalvik_coredump.sh\ %p\ %u\ %t\
     setprop net.tcp.buffersize.evdo_b  8188,174160,524400,64860,129720,1220608
     setprop net.tcp.buffersize.evdo    8188,174160,524400,64860,129720,1220608
 
-# Enable CnE feature
-	setprop persist.cne.feature 1
-
 # Assign TCP buffer thresholds to be ceiling value of technology maximums
 # Increased technology maximums should be reflected here.
     write /proc/sys/net/core/rmem_max  2097152
     write /proc/sys/net/core/wmem_max  2097152
 
-    start sysinit
     class_start core
     class_start main
 
@@ -881,15 +868,3 @@ service priorityd /system/bin/sh /system/etc/priorityd.sh
     user root
     disabled
     oneshot
-    
-service sysinit /system/bin/logwrapper /system/xbin/busybox run-parts /system/etc/init.d
-    disabled
-    oneshot
-
-# This will start LMI Rescue Start Server which H3G Orange TMI KDDI Verizon is exceptional
-service RescueStarter /system/bin/RescueStarter
-class core
-user graphics
-group input graphics
-
-

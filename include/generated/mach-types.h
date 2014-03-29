@@ -1193,6 +1193,10 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_K2_CL                4108
 #define MACH_TYPE_K2_U                 4363
 #define MACH_TYPE_K2_PLC_CL            4197
+#define MACH_TYPE_TC2                  4198
+#define MACH_TYPE_M4_UL                4490
+#define MACH_TYPE_M4_U                 4542
+#define MACH_TYPE_ZIP_CL               4541
 #define MACH_TYPE_MONARUDO             4060
 #define MACH_TYPE_VILLEC2              4065
 #define MACH_TYPE_DELUXE_J             4201
@@ -1209,7 +1213,11 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_DELUXE_UB1           4372
 #define MACH_TYPE_M7_DCG               4415
 #define MACH_TYPE_M7_DUG               4416
+#define MACH_TYPE_M7_DTU               4417
 #define MACH_TYPE_M7_WLJ               4454
+#define MACH_TYPE_M7C_DTU              4478
+#define MACH_TYPE_DLXP_WL              4487
+#define MACH_TYPE_DLXP_UL              4496
 #define MACH_TYPE_M7_EVM               9999
 
 #ifdef CONFIG_ARCH_EBSA110
@@ -15384,6 +15392,54 @@ extern unsigned int __machine_arch_type;
 # define machine_is_k2_plc_cl()	(0)
 #endif
 
+#ifdef CONFIG_MACH_TC2
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TC2
+# endif
+# define machine_is_tc2()	(machine_arch_type == MACH_TYPE_TC2)
+#else
+# define machine_is_tc2()	(0)
+#endif
+
+#ifdef CONFIG_MACH_M4_UL
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_M4_UL
+# endif
+# define machine_is_m4_ul()	(machine_arch_type == MACH_TYPE_M4_UL)
+#else
+# define machine_is_m4_ul()	(0)
+#endif
+
+#ifdef CONFIG_MACH_M4_U
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_M4_U
+# endif
+# define machine_is_m4_u()	(machine_arch_type == MACH_TYPE_M4_U)
+#else
+# define machine_is_m4_u()	(0)
+#endif
+
+#ifdef CONFIG_MACH_ZIP_CL
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ZIP_CL
+# endif
+# define machine_is_zip_cl()	(machine_arch_type == MACH_TYPE_ZIP_CL)
+#else
+# define machine_is_zip_cl()	(0)
+#endif
+
 #ifdef CONFIG_MACH_MONARUDO
 # ifdef machine_arch_type
 #  undef machine_arch_type
@@ -15576,6 +15632,18 @@ extern unsigned int __machine_arch_type;
 # define machine_is_m7_dug()	(0)
 #endif
 
+#ifdef CONFIG_MACH_M7_DTU
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_M7_DTU
+# endif
+# define machine_is_m7_dtu()	(machine_arch_type == MACH_TYPE_M7_DTU)
+#else
+# define machine_is_m7_dtu()	(0)
+#endif
+
 #ifdef CONFIG_MACH_M7_WLJ
 # ifdef machine_arch_type
 #  undef machine_arch_type
@@ -15586,6 +15654,42 @@ extern unsigned int __machine_arch_type;
 # define machine_is_m7_wlj()	(machine_arch_type == MACH_TYPE_M7_WLJ)
 #else
 # define machine_is_m7_wlj()	(0)
+#endif
+
+#ifdef CONFIG_MACH_M7C_DTU
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_M7C_DTU
+# endif
+# define machine_is_m7c_dtu()	(machine_arch_type == MACH_TYPE_M7C_DTU)
+#else
+# define machine_is_m7c_dtu()	(0)
+#endif
+
+#ifdef CONFIG_MACH_DLXP_WL
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_DLXP_WL
+# endif
+# define machine_is_dlxp_wl()	(machine_arch_type == MACH_TYPE_DLXP_WL)
+#else
+# define machine_is_dlxp_wl()	(0)
+#endif
+
+#ifdef CONFIG_MACH_DLXP_UL
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_DLXP_UL
+# endif
+# define machine_is_dlxp_ul()	(machine_arch_type == MACH_TYPE_DLXP_UL)
+#else
+# define machine_is_dlxp_ul()	(0)
 #endif
 
 #ifdef CONFIG_MACH_M7_EVM

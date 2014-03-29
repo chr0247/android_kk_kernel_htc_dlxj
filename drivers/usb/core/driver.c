@@ -468,7 +468,8 @@ int usb_match_one_id(struct usb_interface *interface,
 			!(id->match_flags & USB_DEVICE_ID_MATCH_VENDOR) &&
 			(id->match_flags & (USB_DEVICE_ID_MATCH_INT_CLASS |
 				USB_DEVICE_ID_MATCH_INT_SUBCLASS |
-				USB_DEVICE_ID_MATCH_INT_PROTOCOL)))
+				USB_DEVICE_ID_MATCH_INT_PROTOCOL |
+				USB_DEVICE_ID_MATCH_INT_NUMBER)))
 		return 0;
 
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_INT_CLASS) &&
@@ -481,6 +482,10 @@ int usb_match_one_id(struct usb_interface *interface,
 
 	if ((id->match_flags & USB_DEVICE_ID_MATCH_INT_PROTOCOL) &&
 	    (id->bInterfaceProtocol != intf->desc.bInterfaceProtocol))
+		return 0;
+
+	if ((id->match_flags & USB_DEVICE_ID_MATCH_INT_NUMBER) &&
+	    (id->bInterfaceNumber != intf->desc.bInterfaceNumber))
 		return 0;
 
 	return 1;
@@ -1169,15 +1174,6 @@ int usb_suspend(struct device *dev, pm_message_t msg)
 		}
 	}
 
-  if (udev->bus->skip_resume) {
-    if (udev->state == USB_STATE_SUSPENDED) {
-      return 0;
-    } else {
-      dev_err(dev, "abort suspend\n");
-      return -EBUSY;
-    }
-  }
-
 	unbind_no_pm_drivers_interfaces(udev);
 
 	choose_wakeup(udev, msg);
@@ -1206,15 +1202,6 @@ int usb_resume(struct device *dev, pm_message_t msg)
 		
 		return 0;
 	}
-
-        /*
-         * Some buses would like to keep their devices in suspend
-         * state after system resume.  Their resume happen when
-         * a remote wakeup is detected or interface driver start
-         * I/O.
-         */
-  if (udev->bus->skip_resume)
-               return 0;
 
 	pm_runtime_get_sync(dev->parent);
 	status = usb_resume_both(udev, msg);
