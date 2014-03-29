@@ -252,6 +252,9 @@ enum {
 #ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
 int set_two_phase_freq(int cpufreq);
 #endif
+#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND 
+int id_set_two_phase_freq(int cpufreq);
+#endif
 
 int set_input_event_min_freq_by_cpu(int cpu_nr, int cpufreq);
 
@@ -2039,8 +2042,8 @@ void deluxe_j_add_usb_devices(void)
 
 	
 	if (board_mfg_mode() == 0) {
-		android_usb_pdata.nluns = 1;
-		android_usb_pdata.cdrom_lun = 0x1;
+		android_usb_pdata.nluns = 2;
+		android_usb_pdata.cdrom_lun = 0x2;
 	}
 	android_usb_pdata.serial_number = board_serialno();
 
@@ -2068,7 +2071,7 @@ struct pm8xxx_gpio_init headset_pmic_gpio_xa[] = {
 
 static uint32_t headset_cpu_gpio_xa[] = {
 	GPIO_CFG(CPU_1WIRE_RX, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
-	GPIO_CFG(CPU_1WIRE_TX, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
+	GPIO_CFG(CPU_1WIRE_TX, 0, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA),
 };
 
 static uint32_t headset_onewire_gpio[] = {
@@ -3076,7 +3079,7 @@ static struct r3gd20_gyr_platform_data gyro_platform_data = {
        .min_interval = R3GD20_MIN_POLL_PERIOD_MS, 
        .watermark = 0,
        .fifomode = 0,
-	.power_LPM = deluxe_j_gyro_power_LPM,
+		.power_LPM = deluxe_j_gyro_power_LPM,
 };
 
 static struct i2c_board_info motion_sensor_gsbi_2_info[] = {
@@ -4378,6 +4381,22 @@ static struct platform_device vibrator_pwm_device = {
 	.platform_data	= &pm8xxx_vib_pwm_pdata,
 	},
 };
+static struct pm8xxx_vibrator_pwm_platform_data pm8xxx_vib_pwm_pdata_XC = {
+    .initial_vibrate_ms = 0,
+    .max_timeout_ms = 15000,
+	.duty_us = 35,
+	.PERIOD_US = 38,
+	.bank = PM8XXX_ID_GPIO26,
+    .ena_gpio = PM8921_GPIO_PM_TO_SYS(HAPTIC_EN),
+    .set_vdd_power = haptic_set_vdd,
+};
+static struct platform_device vibrator_pwm_device_XC = {
+    .name = PM8XXX_VIBRATOR_PWM_DEV_NAME,
+    .dev = {
+		.platform_data  = &pm8xxx_vib_pwm_pdata_XC,
+	},
+};
+
 
 static struct ramdump_platform_data ramdump_data_2G = {
 	.count = 1,
@@ -4496,8 +4515,8 @@ static struct platform_device *common_devices[] __initdata = {
 	&apq_cpudai_slimbus_1_rx,
 	&apq_cpudai_slimbus_1_tx,
 	&apq_cpudai_slimbus_2_tx,
-	&apq_cpudai_slimbus_3_rx,
-        &apq_cpudai_slim_4_rx,
+    &apq_cpudai_slimbus_3_rx,
+    &apq_cpudai_slim_4_rx,
 	&apq_cpudai_slim_4_tx,
 	&apq8064_rpm_device,
 	&apq8064_rpm_log_device,
@@ -4855,9 +4874,9 @@ static struct mpu3050_platform_data mpu3050_data = {
 		.adapt_num = MSM8064_GSBI2_QUP_I2C_BUS_ID, 
 		.bus = EXT_SLAVE_BUS_SECONDARY,
 		.address = 0x30 >> 1,
-			.orientation = { -1, 0,  0,
-					  0, 1,  0,
-					  0, 0, -1 },
+		.orientation = { -1,  0,  0,
+				  0,  1,  0,
+				  0,  0, -1 },
 
 	},
 	.compass = {
@@ -4865,9 +4884,9 @@ static struct mpu3050_platform_data mpu3050_data = {
 		.adapt_num = MSM8064_GSBI2_QUP_I2C_BUS_ID, 
 		.bus = EXT_SLAVE_BUS_PRIMARY,
 		.address = 0x1A >> 1,
-			.orientation = { -1, 0,  0,
-					  0, 1,  0,
-					  0, 0, -1},
+		.orientation = { -1, 0,  0,
+				  0, 1,  0,
+				  0, 0, -1},
 	},
 	.power_LPM = deluxe_j_mpu3050_sensor_power_LPM,
 };
@@ -4979,7 +4998,7 @@ static uint32_t ac_reset_gpio_table[] = {
 
 void reset_dflipflop(void)
 {
-	gpio_tlmm_config(ac_reset_gpio_table[0], GPIO_CFG_ENABLE);
+	gpio_tlmm_config(ac_reset_xc_gpio_table[0], GPIO_CFG_ENABLE);
 	gpio_set_value(AC_WDT_RST, 0);
 	pr_info("[CABLE] Clear D Flip-Flop\n");
 	udelay(100);
@@ -5262,8 +5281,8 @@ static void deluxe_j_init_1seg(void)
 
 #ifdef CONFIG_SERIAL_IRDA
 static uint32_t msm_uart_gsbi3_gpio[] = {
-	GPIO_CFG(SIR_TX, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA),
-	GPIO_CFG(SIR_RX, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_4MA),
+	GPIO_CFG(SIR_TX, 1, GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
+	GPIO_CFG(SIR_RX, 1, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_8MA),
 };
 static void msm_uart_gsbi3_gpio_init(void)
 {
@@ -5411,7 +5430,11 @@ static void __init deluxe_j_common_init(void)
 #endif 
 
 	platform_add_devices(common_devices, ARRAY_SIZE(common_devices));
-	platform_device_register(&vibrator_pwm_device);
+
+	if (system_rev < XC )
+		platform_device_register(&vibrator_pwm_device);
+	else
+              platform_device_register(&vibrator_pwm_device_XC);
 
 	if(board_mfg_mode() == 9) {
 		if (board_fullramdump_flag())
@@ -5542,6 +5565,10 @@ static void __init deluxe_j_cdp_init(void)
 #ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
         if(!cpu_is_krait_v1())
                 set_two_phase_freq(1134000);
+#endif
+#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
+        if(!cpu_is_krait_v1())
+                id_set_two_phase_freq(1134000);
 #endif
 	set_input_event_min_freq_by_cpu(1, 1134000);
 	set_input_event_min_freq_by_cpu(2, 1026000);

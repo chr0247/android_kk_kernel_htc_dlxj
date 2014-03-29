@@ -74,6 +74,11 @@ service pnpmgr /system/bin/pnpmgr
     class core
     user root
 
+service adaptive /system/bin/adaptive -c 0 -s 150 -b 210
+    class core
+    user root
+    disabled
+
 service memlock /system/bin/memlock
     class main
     cgroup bg

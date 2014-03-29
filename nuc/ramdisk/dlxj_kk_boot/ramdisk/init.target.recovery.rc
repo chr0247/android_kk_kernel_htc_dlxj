@@ -9,9 +9,7 @@ on init
 # Backwards Compat - XXX: Going away in G*
     symlink /mnt/sdcard /sdcard
 
-# NETWORK: NAT setting
-# To prevent out of WINDOW ACK from making
-# connection tracking to treat them as INVALID packet
+# NETWORK: NAT setting to prevent out of WINDOW ACK from making connection tracking to treat them as INVALID packet.
     write /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal 1
 
 
@@ -85,11 +83,10 @@ on post-fs-data
 	chown system system /data/data
 	chmod 0771 /data/data
 
-	# If there is no fs-post-data action in the init.<device>.rc file, you
-	# must uncomment this line, otherwise encrypted filesystems
-	# won't work.
-	# Set indication (checked by vold) that we have finished this action
-	setprop vold.post_fs_data_done 1
+    # If there is no fs-post-data action in the init.<device>.rc file, you
+    # must uncomment this line, otherwise encrypted filesystems won't work.
+    # Set indication (checked by vold) that we have finished this action
+    setprop vold.post_fs_data_done 1
 
 on boot
 
@@ -153,12 +150,8 @@ on boot
     write /proc/sys/net/core/rmem_max  1220608
     write /proc/sys/net/core/wmem_max  1220608
 
-# To prevent out of order acknowledgements from making
-# connection tracking to treat them as not belonging to
-# the connection they belong to.
-# Otherwise, a weird issue happens in which some long
-# connections on high-throughput links get dropped when
-# an ack packet comes out of order
+# To prevent out of order acknowledgements from making connection tracking to treat them as not belonging to the connection they belong to
+# Otherwise, a weird issue happens in which some long connections on high-throughput links get dropped when an ack packet comes out of order.
     write /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal 1
 
 
@@ -170,7 +163,7 @@ service mfgsrv /sbin/mfgsrv -i -t /dev/ttyHSL0 -t /dev/ttyHSUSB1
     group root
     disabled
 
-service kickstart /system/bin/qcks -1 modem_st1 -2 modem_st2 -3 radio_config -i /vendor/firmware/
+service kickstart /system/bin/qcks -1 modem_st1 -2 modem_st2 -3 radio_config -i /vendor/firmware/ -u
     class core
     user root
     oneshot

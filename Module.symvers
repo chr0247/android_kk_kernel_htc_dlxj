@@ -348,7 +348,6 @@
 0x1655bb05	queue_work_on	vmlinux	EXPORT_SYMBOL_GPL
 0x59d8223a	ioport_resource	vmlinux	EXPORT_SYMBOL
 0xc7a4fbed	rtnl_lock	vmlinux	EXPORT_SYMBOL
-0xcd719ed2	getPowerKeyState	vmlinux	EXPORT_SYMBOL
 0x05d3dc21	put_pmem_file	vmlinux	EXPORT_SYMBOL
 0xd908b6a3	kgsl_sharedmem_alloc_coherent	vmlinux	EXPORT_SYMBOL
 0xa8445f95	debugfs_create_bool	vmlinux	EXPORT_SYMBOL_GPL

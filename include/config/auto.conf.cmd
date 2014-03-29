@@ -104,6 +104,7 @@ deps_config := \
 	drivers/platform/msm/Kconfig \
 	drivers/platform/x86/Kconfig \
 	drivers/platform/Kconfig \
+	drivers/staging/cpupower/Kconfig \
 	drivers/staging/ozwpan/Kconfig \
 	drivers/staging/ramster/Kconfig \
 	drivers/staging/telephony/Kconfig \
@@ -719,6 +720,7 @@ deps_config := \
 	drivers/cpufreq/Kconfig.arm \
 	drivers/cpufreq/Kconfig.x86 \
 	drivers/cpufreq/Kconfig \
+	arch/arm/mvp/Kconfig \
 	mm/Kconfig \
 	kernel/Kconfig.preempt \
 	kernel/time/Kconfig \
