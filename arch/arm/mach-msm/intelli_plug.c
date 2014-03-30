@@ -181,7 +181,7 @@ static void intelli_plug_boost_fn(struct work_struct *work)
 		cpu_up(1);
 }
 
-static void __cpuinit intelli_plug_work_fn(struct work_struct *work)
+static void intelli_plug_work_fn(struct work_struct *work)
 {
 	unsigned int nr_run_stat;
 	unsigned int cpu_count = 0;

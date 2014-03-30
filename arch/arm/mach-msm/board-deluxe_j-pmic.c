@@ -195,52 +195,7 @@ static struct pm8xxx_misc_platform_data deluxe_j_pm8921_misc_pdata = {
 #define PM8XXX_LED_PWM_PERIOD		1000
 #define PM8XXX_LED_PWM_DUTY_MS		20
 #define PM8XXX_PWM_CHANNEL_NONE		-1
-static DEFINE_MUTEX(led_lock);
-static struct regulator *led_reg_l29;
-static int led_power_LPM(int on)
-{
-	int rc = 0;
 
-	mutex_lock(&led_lock);
-	pr_info("[LED] %s: enter:%d\n", __func__, on);
-
-	if (led_reg_l29 == NULL) {
-	led_reg_l29 = regulator_get(NULL, "8921_l29");
-	if (IS_ERR(led_reg_l29)) {
-			pr_err("[LED] %s: Unable to get '8921_l29' \n", __func__);
-			mutex_unlock(&led_lock);
-			return -ENODEV;
-		}
-	}
-	if (on == 1) {
-		rc = regulator_set_optimum_mode(led_reg_l29, 100);
-	   if (rc < 0)
-		pr_err("[LED] %s: enter LMP,set_optimum_mode l29 failed, rc=%d\n", __func__, rc);
-
-	rc = regulator_enable(led_reg_l29);
-		if (rc) {
-			pr_err("'%s' regulator enable failed rc=%d\n", "led_reg_l29", rc);
-			mutex_unlock(&led_lock);
-			return rc;
-		}
-		pr_info("[LED] %s: enter LMP mode\n", __func__);
-	} else {
-		rc = regulator_set_optimum_mode(led_reg_l29, 100000);
-	   if (rc < 0)
-		pr_err("[LED] %s: leave LMP,set_optimum_mode l29 failed, rc=%d\n", __func__, rc);
-
-		rc = regulator_enable(led_reg_l29);
-		if (rc) {
-			 pr_err("'%s' regulator enable failed, rc=%d\n", "led_reg_l29", rc);
-		mutex_unlock(&led_lock);
-		   return rc;
-		}
-		pr_info("[LED] %s: leave LMP mode\n", __func__);
-		usleep(10);
-	}
-	mutex_unlock(&led_lock);
-	return rc;
-}
 static struct pm8xxx_led_configure pm8921_led_info[] = {
 	[0] = {
 		.name		= "button-backlight",
@@ -260,23 +215,7 @@ static struct pm8xxx_led_configure pm8921_led_info[] = {
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0},
-		.lpm_power = led_power_LPM,
 	},
-        [1] = {
-                .name           = "green",
-                .flags          = PM8XXX_ID_LED_1,
-                .function_flags = LED_PWM_FUNCTION | LED_BLINK_FUNCTION,
-		.out_current    = 2,
-		.pwm_coefficient = 5,
-		.blink_duty_per_2sec = 10000,
-        },
-        [2] = {
-                .name           = "amber",
-                .flags          = PM8XXX_ID_LED_2,
-                .function_flags = LED_PWM_FUNCTION | LED_BLINK_FUNCTION,
-		.out_current    = 3,
-		.pwm_coefficient = 5,
-        },
 };
 
 static struct pm8xxx_led_platform_data deluxe_j_pm8921_leds_pdata = {
