@@ -28,7 +28,7 @@
 #include <linux/slab.h>
 
 #define CREATE_TRACE_POINTS
-#include <trace/events/cpufreq_ondemand.h>
+#include <trace/events/cpufreq_interactive.h>
 
 
 #define DEF_SAMPLING_RATE				(50000)
@@ -993,16 +993,16 @@ static void dbs_freq_increase(struct cpufreq_policy *p, unsigned load, unsigned 
 	if (dbs_tuners_ins.powersave_bias)
 		freq = powersave_bias_target(p, freq, CPUFREQ_RELATION_H);
 	else if (p->cur == p->max) {
-		trace_cpufreq_ondemand_already (p->cpu, load, p->cur, p->cur);
+		trace_cpufreq_interactive_already (p->cpu, load, p->cur, p->cur);
 		return;
 	}
 
-	trace_cpufreq_ondemand_target (p->cpu, load, p->cur, freq);
+	trace_cpufreq_interactive_target (p->cpu, load, p->cur, freq);
 
 	__cpufreq_driver_target(p, freq, (dbs_tuners_ins.powersave_bias || freq < p->max) ?
 			CPUFREQ_RELATION_L : CPUFREQ_RELATION_H);
 
-	trace_cpufreq_ondemand_up (p->cpu, freq, p->cur);
+	trace_cpufreq_interactive_up (p->cpu, freq, p->cur);
 }
 
 #ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
@@ -1244,6 +1244,8 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 			if (policy->cur < dbs_tuners_ins.sync_freq)
 				dbs_freq_increase(policy, cur_load,
 						dbs_tuners_ins.sync_freq);
+			else
+				trace_cpufreq_interactive_already (policy->cpu, cur_load, policy->cur,policy->cur);
 			return;
 		}
 
@@ -1252,20 +1254,22 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 			if (policy->cur < dbs_tuners_ins.optimal_freq)
 				dbs_freq_increase(policy, cur_load,
 						dbs_tuners_ins.optimal_freq);
+			else
+				trace_cpufreq_interactive_already (policy->cpu, cur_load, policy->cur,policy->cur);
 			return;
 		}
 	}
 
 	if (input_event_boosted())
 	{
-		trace_cpufreq_ondemand_already (policy->cpu, cur_load, policy->cur,policy->cur);
+		trace_cpufreq_interactive_already (policy->cpu, cur_load, policy->cur,policy->cur);
 		return;
 	}
 
 	
 	
 	if (policy->cur == policy->min){
-		trace_cpufreq_ondemand_already (policy->cpu, cur_load, policy->cur,policy->cur);
+		trace_cpufreq_interactive_already (policy->cpu, cur_load, policy->cur,policy->cur);
 		return;
 	}
 
@@ -1301,10 +1305,10 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		if (dbs_tuners_ins.powersave_bias)
 			freq_next = powersave_bias_target(policy, freq_next, CPUFREQ_RELATION_L);
 
-		trace_cpufreq_ondemand_target (policy->cpu, cur_load, policy->cur, freq_next);
+		trace_cpufreq_interactive_target (policy->cpu, cur_load, policy->cur, freq_next);
 		__cpufreq_driver_target(policy, freq_next,
 			CPUFREQ_RELATION_L);
-		trace_cpufreq_ondemand_down (policy->cpu, freq_next, policy->cur);
+		trace_cpufreq_interactive_down (policy->cpu, freq_next, policy->cur);
 	}
 }
 
@@ -1412,7 +1416,7 @@ static void dbs_input_event(struct input_handle *handle, unsigned int type,
 			
 			spin_lock_irqsave(&input_boost_lock, flags);
 			input_event_boost = true;
-			input_event_boost_expired = jiffies + usecs_to_jiffies(dbs_tuners_ins.sampling_rate * 2);
+			input_event_boost_expired = jiffies + usecs_to_jiffies(dbs_tuners_ins.sampling_rate * 4);
 			spin_unlock_irqrestore(&input_boost_lock, flags);
 
 			for_each_online_cpu(i) {
@@ -1615,7 +1619,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 					NULL,
 					dbs_tuners_ins.powersave_bias))
 			dbs_timer_init(this_dbs_info);
-		trace_cpufreq_ondemand_target (cpu, 0, 0, 0);
+		trace_cpufreq_interactive_target (cpu, 0, 0, 0);
 		break;
 
 	case CPUFREQ_GOV_STOP:
@@ -1634,7 +1638,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 			sysfs_remove_group(cpufreq_global_kobject,
 					   &dbs_attr_group);
 		}
-		trace_cpufreq_ondemand_target (cpu, 0, 0, 0);
+		trace_cpufreq_interactive_target (cpu, 0, 0, 0);
 		break;
 
 	case CPUFREQ_GOV_LIMITS:
@@ -1779,4 +1783,3 @@ fs_initcall(cpufreq_gov_dbs_init);
 module_init(cpufreq_gov_dbs_init);
 #endif
 module_exit(cpufreq_gov_dbs_exit);
-
