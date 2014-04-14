@@ -29,7 +29,7 @@
 static atomic_t q6_effect_mode = ATOMIC_INIT(-1);
 extern unsigned int system_rev;
 
-static int deluxe_j_get_hw_component(void)
+static int deluxej_get_hw_component(void)
 {
     int hw_com = 0;
 
@@ -42,7 +42,7 @@ static int deluxe_j_get_hw_component(void)
     return hw_com;
 }
 
-static int deluxe_j_enable_digital_mic(void)
+static int deluxej_enable_digital_mic(void)
 {
 	if(system_rev >= XC)
 		return 1;
@@ -69,8 +69,8 @@ int apq8064_get_24b_audio(void)
 }
 
 static struct acoustic_ops acoustic = {
-        .enable_digital_mic = deluxe_j_enable_digital_mic,
-        .get_hw_component = deluxe_j_get_hw_component,
+        .enable_digital_mic = deluxej_enable_digital_mic,
+        .get_hw_component = deluxej_get_hw_component,
 	.set_q6_effect = apq8064_set_q6_effect_mode
 };
 
@@ -107,6 +107,7 @@ static int __init deluxe_j_audio_init(void)
 	htc_register_pcm_routing_ops(&rops);
 	htc_register_compr_q6_ops(&cops);
 	acoustic_register_ops(&acoustic);
+	pr_info("%s", __func__);
 	return ret;
 
 }

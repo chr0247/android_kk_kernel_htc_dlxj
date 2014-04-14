@@ -9,4 +9,4 @@ cp ../ramdisk/dlxj_kk_boot/new-ramdisk.cpio.gz ../ramdisk/new-ramdisk.cpio.gz
 
 
 # 3.repack boot.img
-./mkbootimg --kernel ../kernel_image/zImage --ramdisk ../ramdisk/new-ramdisk.cpio.gz --board Deluxe_J --base 0x80600000 --pagesize 2048 --ramdiskaddr 0x81e00000 --output ../dlxj_boot_repacked.img
+./mkbootimg --kernel ../kernel_image/zImage --ramdisk ../ramdisk/new-ramdisk.cpio.gz --cmdline 'console=ttyHSL0,115200,n8 androidboot.hardware=dlxj user_debug=31' --board Deluxe_J --base 0x80600000 --pagesize 2048 --ramdiskaddr 0x81e00000 --output ../dlxj_boot_repacked.img
